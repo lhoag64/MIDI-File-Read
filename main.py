@@ -3,7 +3,9 @@ import configparser
 
 from utilities.args import ParseArgs
 from utilities.logconfig import LogConfig
-from midimod.file import MidiFile
+#from utilities.file import File
+
+from midi.sequence import Sequence
 
 if (__name__ == "__main__"):
 
@@ -18,12 +20,18 @@ if (__name__ == "__main__"):
 
   logging.debug("Program Entry")
 
-  midiFile = MidiFile()
-  midiFile.Read(config.get("FILES", "MIDFILE"))
+#  midiFile = MidiFile()
+#  midiFile.Read(config.get("FILES", "MIDFILE"))
 
+#  try:
+#    midiFile = File()
+#    midiFile.Open(config.get("FILES", "MIDIFILE"))
+#  except FileNotFoundError as err:
+#    logging.debug("Exception: " + err.strerror)
+#    exit()
 
-
-
+  seq = Sequence()
+  seq.Read(config.get("FILES", "MIDIFILE"))
 
 
   logging.debug("Program Exit")
