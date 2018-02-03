@@ -34,8 +34,8 @@ class Sequence(object):
       else:
         done = True
       
-      if trk != trkCnt:
-        logging.warning("Mismatch of tracks in MIDI file")
+    if trk != trkCnt:
+      logging.warning("Mismatch of tracks in MIDI file")
 
     logging.debug("")
 
