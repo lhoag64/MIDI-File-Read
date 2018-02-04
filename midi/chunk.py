@@ -22,6 +22,9 @@ class ChunkList(object):
   def GetTrkCnt(self):
     return self.hdr.cTrks
 
+  def GetTrkList(self):
+    return self.trkList
+
 #----------------------------------------------------------------------
 class Chunk(object):
 
