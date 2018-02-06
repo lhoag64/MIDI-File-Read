@@ -2,58 +2,146 @@ import logging
 
 #----------------------------------------------------------------------
 class Buffer(object):
-  data = None
-  dLen = None
-  cIdx = None
+  bufferCnt = 0
 
   #--------------------------------------------------------------------
-  def __init__(self, len, fp=None):
-    self.dLen = len
-    self.data = memoryview(bytearray(len))
-    if fp is not None:
-      fp.readinto(self.data)
+  def __init__(self, obj=None, cnt=None):
+    Buffer.bufferCnt += 1
+    self.bufId = Buffer.bufferCnt
+    self.dCnt = cnt
+    self.bLen = cnt
+    if cnt is not None:
+      self.data = memoryview(bytearray(cnt))
+    else:
+      self.data = None
     self.cIdx = 0
+    logging.debug('created buffer ' + str(self.bufId))
 
   #--------------------------------------------------------------------
-  def ReadFileInto(self, fp):
+  def __del__(self, obj=None, cnt=None):
+    logging.debug("deleting buffer " + str(self.bufId))
+    if self.data is not None:
+      self.data.release()
+    Buffer.bufferCnt -= 1
+
+  #--------------------------------------------------------------------
+  def GetDataCnt(self):
+    return self.dCnt
+
+  #--------------------------------------------------------------------
+  def GetData(self):
+    return self.data[self.cIdx:]
+
+
+  #--------------------------------------------------------------------
+  #def __getitem(self):
+  #  return self
+
+  #--------------------------------------------------------------------
+  def ReadFileInto(self, fp, cnt):
+      if self.data is not None:
+        self.data.release()
+      self.data = memoryview(bytearray(cnt))
+      self.dCnt = cnt
+      self.bLen = cnt
       fp.readinto(self.data)
+
+  #--------------------------------------------------------------------
+  def ReadBufferInto(self, buffer, cnt):
+      if self.data is not None:
+        self.data.release()
+      self.dCnt = cnt
+      self.bLen = cnt
+      self.data = buffer.ReadBytes(cnt)
+
+  #--------------------------------------------------------------------
+  def Copy(self, cnt):
+    pass
+
+  #--------------------------------------------------------------------
+  def GetIdx(self):
+    return self.cIdx
+
+  #--------------------------------------------------------------------
+  def EOB(self):
+    return self.cIdx == self.bLen
+
+  #--------------------------------------------------------------------
+  def Slice(self, startIdx=None, cnt=None):
+    if startIdx is None:
+      sIdx = self.cIdx
+    else:
+      sIdx = startIdx
+    
+    if cnt is None:
+      eIdx = self.bLen
+    else:
+      eIdx = sIdx + cnt
+
+    return self.data[sIdx:eIdx]
+
+  #--------------------------------------------------------------------
+  def ReadString(self, cnt):
+    val = None
+    if self.dCnt != 0 and self.cIdx + cnt <= self.bLen:
+      val = bytearray(self.data[self.cIdx:self.cIdx + cnt]).decode("utf-8")
+      self.cIdx += cnt
+      self.dCnt -= cnt
+    return val
+
+  #--------------------------------------------------------------------
+  def ReadBytes(self, cnt):
+    val = None
+    if self.dCnt != 0 and self.cIdx + cnt <= self.bLen:
+      val = self.data[self.cIdx:self.cIdx + cnt]
+      self.cIdx += cnt
+      self.dCnt -= cnt
+    return val
 
   #--------------------------------------------------------------------
   def ReadByte(self):
-    if self.cIdx >= self.dLen:
-      raise Exception("Attempt to read past end of buffer")
-
-    val = self.data[self.cIdx]
-    self.cIdx += 1
-
-    return val
+    return self.__ReadNum(1)
   
   #--------------------------------------------------------------------
   def ReadShort(self):
-    if (self.cIdx + 2) >= self.dLen:
-      raise Exception("Attempt to read past end of buffer")
+    return self.__ReadNum(2)
 
-    val = self.data[self.cIdx]
-    self.cIdx += 2
-
-    return val
-  
   #--------------------------------------------------------------------
   def ReadInt(self):
-    if (self.cIdx + 4) >= self.dLen:
-      raise Exception("Attempt to read past end of buffer")
+    return self.__ReadNum(4)
 
-    val = self.data[self.cIdx]
-    self.cIdx += 4
-
-    return val
-  
   #--------------------------------------------------------------------
   def ReadLong(self):
-    if (self.cIdx + 8) >= self.dLen:
-      raise Exception("Attempt to read past end of buffer")
+    return self.__ReadNum(8)
 
-    val = self.data[self.cIdx]
-    self.cIdx += 8
+  #--------------------------------------------------------------------
+  def __ReadNum(self, cnt):
+    val = None
+    if self.dCnt != 0 and self.cIdx + cnt <= self.bLen:
+      val = int.from_bytes(self.data[self.cIdx:self.cIdx + cnt], byteorder="big")
+      self.cIdx += cnt
+      self.dCnt -= cnt
+    return val
 
+  #--------------------------------------------------------------------
+  def PeekByte(self):
+    return self.__PeekNum(1)
+  
+  #--------------------------------------------------------------------
+  def PeekShort(self):
+    return self.__PeekNum(2)
+
+  #--------------------------------------------------------------------
+  def PeekInt(self):
+    return self.__PeekNum(4)
+
+  #--------------------------------------------------------------------
+  def PeekLong(self):
+    return self.__PeekNum(8)
+
+  #--------------------------------------------------------------------
+  def __PeekNum(self, cnt):
+    val = None
+    if self.dCnt != 0 and self.cIdx + cnt <= self.bLen:
+      val = int.from_bytes(self.data[self.cIdx:self.cIdx + cnt], byteorder="big")
     return val

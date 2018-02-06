@@ -20,16 +20,6 @@ if (__name__ == "__main__"):
 
   logging.debug("Program Entry")
 
-#  midiFile = MidiFile()
-#  midiFile.Read(config.get("FILES", "MIDFILE"))
-
-#  try:
-#    midiFile = File()
-#    midiFile.Open(config.get("FILES", "MIDIFILE"))
-#  except FileNotFoundError as err:
-#    logging.debug("Exception: " + err.strerror)
-#    exit()
-
   seq = Sequence()
   seq.Read(config.get("FILES", "MIDIFILE"))
 

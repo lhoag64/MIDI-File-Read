@@ -1,21 +1,22 @@
 import logging
+import os.path
 from utilities.hexdump import HexDump
 from utilities.buffer import Buffer
 
 import midi.chunk
+import midi.events
 
 #----------------------------------------------------------------------
 class File(object):
-  filename = None
 
   #--------------------------------------------------------------------
   def __init__(self, filename=None):
     self.filename = filename
     self.chunkList = None
+    self.buffer = None
 
   #--------------------------------------------------------------------
   def Read(self, filename=None):
-
     self.chunkList = self.__Read(filename)
     self.__ProcessChunks()
 
@@ -31,48 +32,44 @@ class File(object):
     chunkList = midi.chunk.ChunkList()
 
     try:
-
+      fileSize = os.path.getsize(self.filename)
       fp = open(self.filename, "rb")
-
-      trkCnt = 0
-      trk = 0
-      done = False
-      while not done:
-        chunk = self.__ReadChunk(fp)
-        if chunk is not None:
-          if type(chunk) is midi.chunk.MThd:
-            chunkList.AddMThd(chunk)
-            trkCnt = chunkList.GetTrkCnt()
-          else:
-            chunkList.AddMTrk(chunk)
-            trk += 1
-        else:
-          done = True
-
-      if trk != trkCnt:
-        logging.warning("Mismatch of tracks in MIDI file")
-
+      self.buffer = Buffer()
+      self.buffer.ReadFileInto(fp, fileSize)
     except Exception as exc:
-      logging.critical("Exception: " + exc.args)
+      logging.critical("Exception: " + exc.args[0])
       fp.close()
       raise Exception("Error reading Midi file")
 
     fp.close()
 
+    trkCnt = 0
+    trk = 0
+    done = False
+    while not done:
+      chunk = self.__ReadChunk(self.buffer)
+      if chunk is not None:
+        if type(chunk) is midi.chunk.MThd:
+          chunkList.AddMThd(chunk)
+          trkCnt = chunkList.GetTrkCnt()
+        else:
+          chunkList.AddMTrk(chunk)
+          trk += 1
+      else:
+        done = True
+
+    if trk != trkCnt:
+      logging.warning("Mismatch of tracks in MIDI file")
+
     return chunkList
 
   #--------------------------------------------------------------------
-  def __ReadChunk(self, fp):
-    chunkType = fp.read(4).decode("utf-8")
-    chunkLen = int.from_bytes(fp.read(4), byteorder='big')
-
-    if chunkType == "" and chunkLen == 0:
-      chunkData = None
-    else:
-      chunkData = memoryview(bytearray(chunkLen))
-      fp.readinto(chunkData)
-      if chunkData.nbytes != chunkLen:
-        raise Exception("Read error in MIDI file")
+  def __ReadChunk(self, buffer):
+    chunkType = buffer.ReadString(4)
+    chunkLen = buffer.ReadInt()
+    if chunkLen is not None:
+      chunkData = Buffer()
+      chunkData.ReadBufferInto(buffer, chunkLen)
 
     if chunkType == "MThd":
       chunkObj = midi.chunk.MThd(chunkType, chunkData)
@@ -85,7 +82,6 @@ class File(object):
 
   #--------------------------------------------------------------------
   def __ProcessChunks(self):
-    #trkCnt = self.chunkList.GetTrkCnt()
     trkList = self.chunkList.GetTrkList()
 
     for trk in trkList:
@@ -96,31 +92,43 @@ class File(object):
   
   #--------------------------------------------------------------------
   def __ProcessTrack(self, trk):
-    HexDump("Track", trk.cData)
 
-    maxIdx = trk.cData.nbytes
-    curIdx = 0
-
-    while curIdx < maxIdx:
-      (event, idx) = self.__ProcessEvent(trk.cData, curIdx)
+    eventList = []
+    done = False
+    while not done:
+      HexDump("Track", trk.cData.GetData())
+      event = midi.events.ParseFileEvent(trk.cData)
+      if event == None:
+        done = True
+      else:
+        eventList.append(event)
+        HexDump(event[0],event[1])
+        HexDump("MsgData",event[2])
 
     logging.debug("")
 
-  #--------------------------------------------------------------------
-  def __ProcessEvent(self, data, cIdx):
-    (lvc, idx) = self.__ReadVLQ(data, cIdx)
-    deltaTime = lvc
-    cIdx = idx
-
-  #--------------------------------------------------------------------
-  def __ReadVLQ(self, data, cIdx):
-    idx = cIdx
-    val = 0
-    while idx < 4:
-      buf = data[idx] & 0xff
-      idx += 1
-      val = (val << 7) + buf
-      if buf & 0x80 == 0:
-        break
-
-    return (val, idx)
+#  #--------------------------------------------------------------------
+#  def __ProcessEvent(self, data):
+#    lvc = self.__ReadVLQ(data)
+#    val = data.PeekByte()
+#    if (val == 0xFF):
+#      event = midi.event.MetaEvent(data, lvc)
+#    elif (val == 0xF0):
+#      event = midi.event.SysexEvent(data, lvc)
+#    else:
+#      event = midi.event.MidiEvent(data, lvc)
+#
+#    return event
+#
+#  #--------------------------------------------------------------------
+#  def __ReadVLQ(self, data):
+#
+#    val = 0
+#    while True:
+#      buf = data.ReadByte()
+#      val = (val << 7) + buf
+#      if buf & 0x80 == 0:
+#        break
+#
+#    return val
+#

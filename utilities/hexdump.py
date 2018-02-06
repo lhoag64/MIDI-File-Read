@@ -1,21 +1,26 @@
 import logging
 
 #----------------------------------------------------------------------
-def HexDump(desc, data, btyes=None):
+def HexDump(desc, data, nbytes=None):
 
   logger = logging.getLogger()
 
   if (logger.level >= logging.DEBUG):
 
     inptype = type(data)
-    if (inptype == memoryview):
+    if inptype is memoryview:
       inpdata = data
       inplen = inpdata.nbytes
+    elif inptype is type(None):
+      return
     else:
       logging.debug("BAD")
 
-    if bytes is not None:
-      inplen = bytes
+    if nbytes is not None:
+      inplen = nbytes
+
+    if inplen == 0:
+      return
 
     output = desc
     output += "\n                              "
@@ -27,11 +32,14 @@ def HexDump(desc, data, btyes=None):
       if (cnt == inplen):
         pass
       elif (cnt % 16 == 0):
-        output += "\n                              "
+        if (cnt != inplen):
+          output += "\n                              "
       elif (cnt % 8 == 0):
         output += " - "
       else:
         output += " "
+      if cnt == inplen:
+        break
 
     logging.debug(output)
 
