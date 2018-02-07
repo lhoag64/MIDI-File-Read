@@ -63,6 +63,13 @@ class Buffer(object):
     return self.cIdx
 
   #--------------------------------------------------------------------
+  def Rewind(self, cnt):
+    if (self.cIdx - cnt) > 0:
+      self.cIdx -= cnt
+    else:
+      raise Exception("Attempt to Rewind Buffer before start")
+  
+  #--------------------------------------------------------------------
   def EOB(self):
     return self.cIdx == self.bLen
 

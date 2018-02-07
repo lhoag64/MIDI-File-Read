@@ -9,6 +9,8 @@ class FileEventType:
   MIDI   = 0x01
 
 #----------------------------------------------------------------------
+prvSB = 0xff
+
 def ParseFileEvent(data):
 
   if data.EOB():
@@ -52,11 +54,12 @@ MetaEventDict = \
   }
 #----------------------------------------------------------------------
 def ParseFileMetaEvent(data, dtime, sbyte):
+  global prvSB
   sIdx = data.GetIdx()
-  eType = data.ReadByte()
-  if (eType == 0xff):
-    eType = data.ReadByte()
-  eType = (eType & 0x7f, eType & 0x80)
+  sb = data.ReadByte()
+  if (sb == 0xff):
+    sb = data.ReadByte()
+  eType = (sb & 0x7f, sb & 0x80)
   params = MetaEventDict[eType[0]]
   if params[0] == 0x8000:
     eLen = data.ReadByte()
@@ -67,6 +70,7 @@ def ParseFileMetaEvent(data, dtime, sbyte):
 
   rawData = data.Slice(sIdx, eIdx - sIdx)
 
+  prvSB = sb
   return (params[1], rawData, eData)
 
 #----------------------------------------------------------------------
@@ -91,9 +95,10 @@ SystemEventDict = \
   }
 #----------------------------------------------------------------------
 def ParseFileSystemEvent(data, dtime, sbyte):
+  global prvSB
   sIdx = data.GetIdx()
-  eType = data.ReadByte()
-  eType = (eType & 0x0f, eType & 0xf0)
+  sb = data.ReadByte()
+  eType = (sb & 0x0f, sb & 0xf0)
   params = SystemEventDict[eType[0]]
   if params[0] == 0xffff:
     eLen = ReadVLQ(data)
@@ -104,31 +109,38 @@ def ParseFileSystemEvent(data, dtime, sbyte):
 
   rawData = data.Slice(sIdx, eIdx - sIdx)
 
+  prvSB = sb
   return (params[1], rawData, eData)
 
 #----------------------------------------------------------------------
 MidiEventDict = \
   {
-    0x08 : (0x0002, "Note Off"),
-    0x09 : (0x0002, "Note On"),
-    0x10 : (0x0002, "Key Pressure"),
-    0x11 : (0x0002, "Control Change"),
+    0x80 : (0x0002, "Note Off"),
+    0x90 : (0x0002, "Note On"),
+    0xa0 : (0x0002, "Key Pressure"),
+    0xb0 : (0x0002, "Control Change"),
     0xc0 : (0x0001, "Program Change"),
     0xd0 : (0x0001, "Channel Pressure"),
     0xe0 : (0x0002, "Pitch Wheel"),
   }
 #----------------------------------------------------------------------
 def ParseFileMidiEvent(data, dtime, sbype):
+  global prvSB
   sIdx = data.GetIdx()
-  eType = data.ReadByte()
-  eType = (eType & 0x0f, eType & 0xf0)
-  params = MidiEventDict[eType[0]]
+  sb = data.PeekByte()
+  if sb < 0x80:
+    sb = prvSB
+  else:
+    sb = data.ReadByte()
+  eType = (sb & 0x0f, sb & 0xf0)
+  params = MidiEventDict[eType[1]]
   eLen = params[0]
   eData = data.ReadBytes(eLen)
   eIdx = data.GetIdx()
 
   rawData = data.Slice(sIdx, eIdx - sIdx)
 
+  prvSB = sb
   return (params[1], rawData, eData)
 
 #--------------------------------------------------------------------
