@@ -56,7 +56,8 @@ class Buffer(object):
 
   #--------------------------------------------------------------------
   def Copy(self, cnt):
-    pass
+    array =  bytearray(self.data[0:cnt])
+    return array
 
   #--------------------------------------------------------------------
   def GetIdx(self):

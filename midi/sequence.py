@@ -1,6 +1,5 @@
 import logging
 import midi.file
-import midi.chunk
 
 #----------------------------------------------------------------------
 class Sequence(object):

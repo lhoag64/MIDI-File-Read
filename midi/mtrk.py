@@ -1,6 +1,10 @@
 import logging
 from utilities.hexdump import HexDump
 
+from midi.event import SystemEvent
+from midi.event import MetaEvent
+from midi.event import MidiEvent
+
 #----------------------------------------------------------------------
 class MTrk(object):
 
@@ -15,7 +19,7 @@ class MTrk(object):
 
     done = False
     while not done:
-      HexDump("Top of Buffer", self.cData.GetData(), 64)
+      #HexDump("Top of Buffer", self.cData.GetData(), 64)
       event = self.__ParseFileEvent(self.cData)
       if event is None:
         done = True
@@ -39,6 +43,7 @@ class MTrk(object):
     else:
       event = self.__ParseFileMidiEvent(data, dTime)
 
+    logging.debug(event)
     return event
 
   #--------------------------------------------------------------------
@@ -66,7 +71,7 @@ class MTrk(object):
 
   #--------------------------------------------------------------------
   def __ParseFileMetaEvent(self, data, dtime):
-    sIdx = data.GetIdx()
+    #sIdx = data.GetIdx()
 
     sb = data.ReadByte()
     if (sb == 0xff):
@@ -80,13 +85,12 @@ class MTrk(object):
       eLen = params[0]
     eData = data.ReadBytes(eLen)
 
-    eIdx = data.GetIdx()
-
-    rawData = data.Slice(sIdx, eIdx - sIdx)
-    HexDump(params[1], rawData)
+    #eIdx = data.GetIdx()
+    #rawData = data.Slice(sIdx, eIdx - sIdx)
+    #HexDump(params[1], rawData)
 
     self.prvSb = sb
-    return (params[1], rawData, eData)
+    return MetaEvent(dtime, sb, eType, eLen, eData, params[1])
 
   #--------------------------------------------------------------------
   SystemEventDict = \
@@ -111,7 +115,7 @@ class MTrk(object):
 
   #--------------------------------------------------------------------
   def __ParseFileSystemEvent(self, data, dtime):
-    sIdx = data.GetIdx()
+    #sIdx = data.GetIdx()
 
     sb = data.ReadByte() & 0x0f
     eType = sb & 0x0f
@@ -124,29 +128,28 @@ class MTrk(object):
       eLen = params[0]
     eData = data.ReadBytes(eLen)
 
-    eIdx = data.GetIdx()
-
-    rawData = data.Slice(sIdx, eIdx - sIdx)
-    HexDump(params[1], rawData)
+    #eIdx = data.GetIdx()
+    #rawData = data.Slice(sIdx, eIdx - sIdx)
+    #HexDump(params[1], rawData)
 
     self.prvSB = sb
-    return (params[1], rawData, eData)
+    return SystemEvent(dtime, sb, eType, eLen, eData, params[1])
 
   #--------------------------------------------------------------------
   MidiEventDict = \
     {
-      0x80 : (0x02, "Note Off"),
-      0x90 : (0x02, "Note On"),
-      0xa0 : (0x02, "Key Pressure"),
-      0xb0 : (0x02, "Control Change"),
-      0xc0 : (0x01, "Program Change"),
-      0xd0 : (0x01, "Channel Pressure"),
-      0xe0 : (0x02, "Pitch Wheel"),
+      0x08 : (0x02, "Note Off"),
+      0x09 : (0x02, "Note On"),
+      0x0a : (0x02, "Key Pressure"),
+      0x0b : (0x02, "Control Change"),
+      0x0c : (0x01, "Program Change"),
+      0x0d : (0x01, "Channel Pressure"),
+      0x0e : (0x02, "Pitch Wheel"),
     }
 
   #----------------------------------------------------------------------
   def __ParseFileMidiEvent(self, data, dtime):
-    sIdx = data.GetIdx()
+    #sIdx = data.GetIdx()
 
     sb = data.PeekByte()
     if sb < 0x80:
@@ -154,7 +157,7 @@ class MTrk(object):
     else:
       sb = data.ReadByte()
 
-    eType = sb & 0xf0
+    eType = (sb & 0xf0) >> 4
     chan = sb & 0x0f
 
     params = MTrk.MidiEventDict[eType]
@@ -162,13 +165,12 @@ class MTrk(object):
     eLen = params[0]
     eData = data.ReadBytes(eLen)
 
-    eIdx = data.GetIdx()
-
-    rawData = data.Slice(sIdx, eIdx - sIdx)
-    HexDump(params[1], rawData)
+    #eIdx = data.GetIdx()
+    #rawData = data.Slice(sIdx, eIdx - sIdx)
+    #HexDump(params[1], rawData)
 
     self.prvSB = sb
-    return (params[1], rawData, eData)
+    return MidiEvent(dtime, sb, chan, eType, eLen, eData, params[1])
 
   #--------------------------------------------------------------------
   def __ReadVLQ(self, data):
