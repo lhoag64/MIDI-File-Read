@@ -17,7 +17,8 @@ def HexDump(desc, data, nbytes=None):
       logging.debug("BAD")
 
     if nbytes is not None:
-      inplen = nbytes
+      if nbytes < inplen:
+        inplen = nbytes
 
     if inplen == 0:
       return
