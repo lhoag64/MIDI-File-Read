@@ -1,4 +1,4 @@
-import logging
+#import logging
 
 #----------------------------------------------------------------------
 #  def __init__(self, dtime, sb, eType, eLen, eData, name):
