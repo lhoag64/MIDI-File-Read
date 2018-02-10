@@ -1,5 +1,7 @@
 import logging
 
+from midi.event import Event
+
 #--------------------------------------------------------------------
 MetaEventDict = \
   {
@@ -70,31 +72,14 @@ def CreateMetaEvent(trk, dtime, sb, etype, elen, edata, name):
 
 
 #----------------------------------------------------------------------
-class MetaEvent(object):
+class MetaEvent(Event):
 
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
-    self.trk = trk
-    self.dtime = dtime
-    self.sb = sb
-    self.type = etype
-    self.dlen = elen
-    self.data = edata
-    self.name = name
+    super().__init__(trk, dtime, sb, etype, elen, edata, name)
 
   #--------------------------------------------------------------------
-  def __repr__(self):
-    s = ""
-    s += format(self.dtime, "08x") + " "
-    s += format(self.sb, "02x") + " "
-    s += format(self.type, "02x") + " "
-    s += format(self.dlen, "02x") + " "
-    if self.data is not None:
-      for b in self.data:
-        s += format(b, "02x") + " "
-    s += "\'" + self.name + "\'"
-
-    return s
+#  def __repr__(self):
 
 #----------------------------------------------------------------------
 class MetaSeqNum(MetaEvent):
@@ -113,10 +98,15 @@ class MetaText(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
 
   #--------------------------------------------------------------------
 #  def __repr__(self):
-#    pass
+#    super().__repr__()
+#    logging.debug(self.text)
 
 #----------------------------------------------------------------------
 class MetaCopyright(MetaEvent):
@@ -124,10 +114,20 @@ class MetaCopyright(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    if self.text is not None:
+      s += "{:s}".format(self.text) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaTrackName(MetaEvent):
@@ -135,10 +135,20 @@ class MetaTrackName(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    if self.text is not None:
+      s += "{:s}".format(self.text) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaInstrumentName(MetaEvent):
@@ -146,10 +156,20 @@ class MetaInstrumentName(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    if self.text is not None:
+      s += "{:s}".format(self.text) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaLyric(MetaEvent):
@@ -157,10 +177,20 @@ class MetaLyric(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
-
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
+  
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    if self.text is not None:
+      s += "{:s}".format(self.text) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaMarker(MetaEvent):
@@ -168,10 +198,20 @@ class MetaMarker(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    if self.text is not None:
+      s += "{:s}".format(self.text) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaCuePoint(MetaEvent):
@@ -223,10 +263,16 @@ class MetaMidiPort(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    self.port = self.data[0]
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    s += "{:2d}".format(self.port) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaEndOfTrack(MetaEvent):
@@ -236,8 +282,12 @@ class MetaEndOfTrack(MetaEvent):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format("End of Track") + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaTempo(MetaEvent):
@@ -245,10 +295,22 @@ class MetaTempo(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    self.tempo0 = (self.data[0] << 16)
+    self.tempo1 = (self.data[1] <<  8)
+    self.tempo2 = (self.data[2] <<  0)
+    self.tempo = self.tempo0 + self.tempo1 + self.tempo2
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    s += "{:08x}".format(self.tempo0) + "|"
+    s += "{:08x}".format(self.tempo1) + "|"
+    s += "{:08x}".format(self.tempo2) + "|"
+    s += "{:08x}".format(self.tempo) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaSmpteOffset(MetaEvent):
@@ -267,10 +329,22 @@ class MetaTimeSignature(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    self.nn = self.data[0]
+    self.dd = self.data[1]
+    self.cc = self.data[2]
+    self.bb = self.data[3]
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    s += "{:02x}".format(self.nn) + "|"
+    s += "{:02x}".format(self.dd) + "|"
+    s += "{:02x}".format(self.cc) + "|"
+    s += "{:02x}".format(self.bb) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaKeySignature(MetaEvent):
@@ -278,10 +352,18 @@ class MetaKeySignature(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    self.sf = self.data[0]
+    self.mi = self.data[1]
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    s += "{:02x}".format(self.sf) + "|"
+    s += "{:02x}".format(self.mi) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MetaSequencerData(MetaEvent):

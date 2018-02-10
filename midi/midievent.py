@@ -1,5 +1,6 @@
 import logging
 
+from midi.event import Event
 
 #----------------------------------------------------------------------
 MidiEventDict = \
@@ -37,32 +38,14 @@ def CreateMidiEvent(trk, dtime, sb, etype, elen, edata, name):
   return event
 
 #----------------------------------------------------------------------
-class MidiEvent(object):
+class MidiEvent(Event):
 
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
-    self.trk = trk
-    self.dtime = dtime
-    self.sb = sb
-    self.type = etype
-    self.dlen = elen
-    self.data = edata
-    self.name = name  
+    super().__init__(trk, dtime, sb, etype, elen, edata, name)
     
   #--------------------------------------------------------------------
-  def __repr__(self):
-    s = ""
-    s += format(self.dtime, "08x") + " "
-    s += format(self.sb, "02x") + " "
-    #s += format(self.type, "02x") + " "
-    #s += format(self.chan, "02x") + " "
-    #s += format(self.dlen, "02x") + " "
-    if self.data is not None:
-      for b in self.data:
-        s += format(b, "02x") + " "
-    s += "\'" + self.name + "\'"
-
-    return s
+#  def __repr__(self):
 
 #----------------------------------------------------------------------
 class MidiNoteOff(MidiEvent):
@@ -70,10 +53,18 @@ class MidiNoteOff(MidiEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    self.note = self.data[0]
+    self.vel = self.data[1]
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|MIDI|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    s += "{:02x}".format(self.note) + "|"
+    s += "{:02x}".format(self.vel) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MidiNoteOn(MidiEvent):
@@ -81,10 +72,18 @@ class MidiNoteOn(MidiEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    self.note = self.data[0]
+    self.vel = self.data[1]
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|MIDI|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<20s}".format(self.name) + "|"
+    s += "{:02x}".format(self.note) + "|"
+    s += "{:02x}".format(self.vel) + "|"
+    return s
 
 #----------------------------------------------------------------------
 class MidiKeyPressure(MidiEvent):
