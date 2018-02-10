@@ -16,6 +16,7 @@ class MTrk(object):
     self.cType = cType
     self.cData = cData
     self.prvSb = 0xff
+    self.eventList = []
 
   #--------------------------------------------------------------------
   def ProcessEvents(self, trkNum):
@@ -26,6 +27,8 @@ class MTrk(object):
       event = self.__ParseFileEvent(trkNum, self.cData)
       if event is None:
         done = True
+      else:
+        self.eventList.append(event)
 
     logging.debug("")
 
@@ -91,7 +94,7 @@ class MTrk(object):
     #rawData = data.Slice(sIdx, eIdx - sIdx)
     #HexDump(params[1], rawData)
 
-    self.prvSB = sb
+    self.prvSb = sb
     return CreateSystemEvent(trk, dtime, sb, eType, eLen, eData, params[1])
 
   #----------------------------------------------------------------------
@@ -100,7 +103,7 @@ class MTrk(object):
 
     sb = data.PeekByte()
     if sb < 0x80:
-      sb = self.prvSB
+      sb = self.prvSb
     else:
       sb = data.ReadByte()
 
@@ -116,7 +119,7 @@ class MTrk(object):
     #rawData = data.Slice(sIdx, eIdx - sIdx)
     #HexDump(params[1], rawData)
 
-    self.prvSB = sb
+    self.prvSb = sb
     return CreateMidiEvent(trk, dtime, sb, eType, eLen, eData, params[1])
 
   #--------------------------------------------------------------------

@@ -6,7 +6,8 @@ def LogConfig(name):
   with open(name, 'w') as dummy:
     pass
 
-  logfmt = '%(asctime)s %(levelname)s-%(message)s'
+  #logfmt = '%(asctime)s %(levelname)s-%(message)s'
+  logfmt = '%(levelname)s--%(message)s'
   formatter = logging.Formatter(logfmt)
 
   logging.basicConfig(level=logging.DEBUG, format=logfmt)

@@ -35,3 +35,20 @@ class Event(object):
     #    s += "\n                    " + member 
 
     return s
+
+  #--------------------------------------------------------------------
+  def DataToStr(self, data, dlen):
+    s = ""
+    if (self.dlen > 0) and (self.data is not None):
+      s += "\n"
+      s += "{:>69s}".format("|")
+      idx = 0
+      for b in self.data:
+        s += "{:02x}".format(b)
+        s += " "
+        idx += 1
+        if (idx % 16) == 0:
+          if idx != self.dlen:
+            s += "\n"
+            s += "{:>69s}".format("|")
+    return s
