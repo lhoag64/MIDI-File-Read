@@ -220,7 +220,7 @@ class MetaMarker(MetaEvent):
     if self.text is not None:
       s += "\n"
       s += "{:>27s}".format("|  ")
-      s += "{:s}".format(self.text) + "|"
+      s += "{:s}".format(self.text)
     return s
 
 #----------------------------------------------------------------------

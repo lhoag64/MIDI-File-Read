@@ -41,7 +41,7 @@ class Event(object):
     s = ""
     if (self.dlen > 0) and (self.data is not None):
       s += "\n"
-      s += "{:>69s}".format("|")
+      s += "{:>27s}".format("|  ")
       idx = 0
       for b in self.data:
         s += "{:02x}".format(b)
@@ -50,5 +50,5 @@ class Event(object):
         if (idx % 16) == 0:
           if idx != self.dlen:
             s += "\n"
-            s += "{:>69s}".format("|")
+            s += "{:>27s}".format("|  ")
     return s

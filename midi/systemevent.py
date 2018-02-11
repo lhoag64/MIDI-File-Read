@@ -135,9 +135,13 @@ class SystemSysex(SystemEvent):
     s = "|SYST|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<20s}".format(self.name) + "|"
-    s += "{:08x}".format(self.idcode) + "|"
-    s += "{:<20s}".format(self.idtext) + "|"
+    s += "{:<40s}".format(self.name) + "|"
+    s += "\n"
+    s += "{:>27s}".format("|  ")
+    s += "{:08x}".format(self.idcode) + " "
+    s += "{:<20s}".format(self.idtext) + " "
+    s += "\n"
+    s += "{:>27s}".format("|  ")
     s += super().DataToStr(self.data, self.dlen)
     return s
 
