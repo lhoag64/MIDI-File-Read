@@ -105,8 +105,6 @@ class MetaText(MetaEvent):
 
   #--------------------------------------------------------------------
 #  def __repr__(self):
-#    super().__repr__()
-#    logging.debug(self.text)
 
 #----------------------------------------------------------------------
 class MetaCopyright(MetaEvent):
@@ -124,11 +122,9 @@ class MetaCopyright(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
+    s += "{:<16s}".format(self.name) + "| "
     if self.text is not None:
-      s += "\n"
-      s += "{:>27s}".format("|  ")
-      s += "{:s}".format(self.text) + "|"
+      s += "Text: {:s}".format(self.text)
     return s
 
 #----------------------------------------------------------------------
@@ -147,11 +143,9 @@ class MetaTrackName(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
+    s += "{:<16s}".format(self.name) + "| "
     if self.text is not None:
-      s += "\n"
-      s += "{:>27s}".format("|  ")
-      s += "{:s}".format(self.text) + "|"
+      s += "Text: {:s}".format(self.text)
     return s
 
 #----------------------------------------------------------------------
@@ -170,11 +164,9 @@ class MetaInstrumentName(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
+    s += "{:<16s}".format(self.name) + "| "
     if self.text is not None:
-      s += "\n"
-      s += "{:>27s}".format("|  ")
-      s += "{:s}".format(self.text) + "|"
+      s += "Text: {:s}".format(self.text)
     return s
 
 #----------------------------------------------------------------------
@@ -193,11 +185,9 @@ class MetaLyric(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
+    s += "{:<16s}".format(self.name) + "| "
     if self.text is not None:
-      s += "\n"
-      s += "{:>27s}".format("|  ")
-      s += "{:s}".format(self.text) + "|"
+      s += "Text: {:s}".format(self.text)
     return s
 
 #----------------------------------------------------------------------
@@ -216,11 +206,9 @@ class MetaMarker(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
+    s += "{:<16s}".format(self.name) + "| "
     if self.text is not None:
-      s += "\n"
-      s += "{:>27s}".format("|  ")
-      s += "{:s}".format(self.text)
+      s += "Text: {:s}".format(self.text)
     return s
 
 #----------------------------------------------------------------------
@@ -229,10 +217,20 @@ class MetaCuePoint(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<16s}".format(self.name) + "| "
+    if self.text is not None:
+      s += "Text: {:s}".format(self.text)
+    return s
 
 #----------------------------------------------------------------------
 class MetaProgramName(MetaEvent):
@@ -240,10 +238,20 @@ class MetaProgramName(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<16s}".format(self.name) + "| "
+    if self.text is not None:
+      s += "Text: {:s}".format(self.text)
+    return s
 
 #----------------------------------------------------------------------
 class MetaDeviceName(MetaEvent):
@@ -251,10 +259,20 @@ class MetaDeviceName(MetaEvent):
   #--------------------------------------------------------------------
   def __init__(self, trk, dtime, sb, etype, elen, edata, name):
     super().__init__(trk, dtime, sb, etype, elen, edata, name)
+    if self.data is not None:
+      self.text = self.data.decode("utf-8")
+    else:
+      self.text = None
 
   #--------------------------------------------------------------------
-#  def __repr__(self):
-#    pass
+  def __repr__(self):
+    s = "|META|"
+    s += "{:2d}".format(self.trk) + "|"
+    s += "{:08x}".format(self.dtime) + "|"
+    s += "{:<16s}".format(self.name) + "| "
+    if self.text is not None:
+      s += "Text: {:s}".format(self.text)
+    return s
 
 #----------------------------------------------------------------------
 class MetaMidiChannelPrefix(MetaEvent):
@@ -265,7 +283,6 @@ class MetaMidiChannelPrefix(MetaEvent):
 
   #--------------------------------------------------------------------
 #  def __repr__(self):
-#    pass
 
   #--------------------------------------------------------------------
 class MetaMidiPort(MetaEvent):
@@ -280,11 +297,8 @@ class MetaMidiPort(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
-    s += "{:02x}".format(self.port) + "|"
-    s += "\n"
-    s += "{:>27s}".format("|  ")
-    s += "{:2d}".format(self.port) + "|"
+    s += "{:<16s}".format(self.name) + "| "
+    s += "Port: {:2d}".format(self.port)
     return s
 
 #----------------------------------------------------------------------
@@ -299,7 +313,7 @@ class MetaEndOfTrack(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format("End of Track") + "|"
+    s += "{:<16s}".format("End of Track")
     return s
 
 #----------------------------------------------------------------------
@@ -321,12 +335,11 @@ class MetaTempo(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
-    s += "{:02x}".format(self.data[0]) + "|"
-    s += "{:02x}".format(self.data[1]) + "|"
-    s += "{:02x}".format(self.data[2]) + "|"
-    s += "\n"
-    s += "{:>27s}".format("|  ")
+    s += "{:<16s}".format(self.name) + "| "
+#    s += "{:02x}".format(self.data[0]) + "|"
+#    s += "{:02x}".format(self.data[1]) + "|"
+#    s += "{:02x}".format(self.data[2]) + "|"
+    s += "Tempo: "
     s += "{:3d}".format(self.bpm) + " bpm"
     return s
 
@@ -364,14 +377,15 @@ class MetaSmpteOffset(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
-    s += "{:02x}".format(self.hr) + "|"
-    s += "{:02x}".format(self.mn) + "|"
-    s += "{:02x}".format(self.se) + "|"
-    s += "{:02x}".format(self.fr) + "|"
-    s += "{:02x}".format(self.ff) + "|"
-    s += "\n"
-    s += "{:>27s}".format("|  ")
+    s += "{:<16s}".format(self.name) + "| "
+#    s += "{:02x}".format(self.hr) + "|"
+#    s += "{:02x}".format(self.mn) + "|"
+#    s += "{:02x}".format(self.se) + "|"
+#    s += "{:02x}".format(self.fr) + "|"
+#    s += "{:02x}".format(self.ff) + "|"
+#    s += "\n"
+#    s += "{:>27s}".format("|  ")
+    s += "Offs: "
     s += "{:02d}".format(self.hour) + ":"
     s += "{:02d}".format(self.min) + ":"
     s += "{:02d}".format(self.sec) + ":"
@@ -402,17 +416,17 @@ class MetaTimeSignature(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
-    s += "{:02x}".format(self.nn) + "|"
-    s += "{:02x}".format(self.dd) + "|"
-    s += "{:02x}".format(self.cc) + "|"
-    s += "{:02x}".format(self.bb) + "|"
-    s += "\n"
-    s += "{:>27s}".format("|  ")
+    s += "{:<16s}".format(self.name) + "| "
+#    s += "{:02x}".format(self.nn) + "|"
+#    s += "{:02x}".format(self.dd) + "|"
+#    s += "{:02x}".format(self.cc) + "|"
+#    s += "{:02x}".format(self.bb) + "|"
+#    s += "\n"
+#    s += "{:>27s}".format("|  ")
     s += "TS: {:02d}".format(self.beatsPerBar) + "/"
     s += "{:02d}".format(self.beatVal) + " "
-    s += "Clicks:{:02d}".format(self.clicks) + " "
-    s += "32nds:{:02d}".format(self.notated32ndPerQuarter)
+    s += "Clicks: {:02d}".format(self.clicks) + " "
+    s += "32nds: {:02d}".format(self.notated32ndPerQuarter)
     return s
 
 #----------------------------------------------------------------------
@@ -453,11 +467,12 @@ class MetaKeySignature(MetaEvent):
     s = "|META|"
     s += "{:2d}".format(self.trk) + "|"
     s += "{:08x}".format(self.dtime) + "|"
-    s += "{:<40s}".format(self.name) + "|"
-    s += "{:02x}".format(self.data[0]) + "|"
-    s += "{:02x}".format(self.data[1]) + "|"
-    s += "\n"
-    s += "{:>27s}".format("|  ")
+    s += "{:<16s}".format(self.name) + "| "
+#    s += "{:02x}".format(self.data[0]) + "|"
+#    s += "{:02x}".format(self.data[1]) + "|"
+#    s += "\n"
+#    s += "{:>27s}".format("|  ")
+    s += "Key: "
     s += "{:<s}".format(self.key) + " "
     s += "{:<s}".format(self.keyType)
     return s
@@ -471,7 +486,6 @@ class MetaSequencerData(MetaEvent):
 
   #--------------------------------------------------------------------
 #  def __repr__(self):
-#    pass
 
 
 
